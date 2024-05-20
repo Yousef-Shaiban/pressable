@@ -20,27 +20,29 @@ Then, run `flutter pub get` to install the package.
 Import the package in your Dart file:
 
 ```dart
-import 'package:pressable/pressable.dart';
+import 'package:pressable/pressable_flutter.dart';
 ```
 
 ### Basic Example
 
 Here's a simple example of using the `Pressable` widget with a scaling effect:
 
-```
-Pressable(
-  onPress: () {
-    print('Widget pressed!');
-  },
-  child: Container(
-    padding: EdgeInsets.all(16.0),
-    color: Colors.blue,
-    child: Text(
-      'Press me',
-      style: TextStyle(color: Colors.white),
+```dart
+Widget test() {
+  return Pressable(
+    onPress: () {
+      print('Widget pressed!');
+    },
+    child: Container(
+      padding: EdgeInsets.all(16.0),
+      color: Colors.blue,
+      child: Text(
+        'Press me',
+        style: TextStyle(color: Colors.white),
+      ),
     ),
-  ),
-)
+  );
+}
 ```
 
 ## Pressable Effects
@@ -57,21 +59,23 @@ The `RippleEffect` provides a ripple effect on press. It has customizable proper
 
 #### Example
 
-```
-Pressable(
-  effect: RippleEffect(
-    color: Colors.blueAccent,
-    mode: RippleEffectMode.background,
-  ),
-  child: Container(
-    padding: EdgeInsets.all(16.0),
-    color: Colors.red,
-    child: Text(
-      'Ripple Effect',
-      style: TextStyle(color: Colors.white),
+```dart
+Widget test() {
+  return Pressable(
+    effect: RippleEffect(
+      color: Colors.blueAccent,
+      mode: RippleEffectMode.background,
     ),
-  ),
-)
+    child: Container(
+      padding: EdgeInsets.all(16.0),
+      color: Colors.red,
+      child: Text(
+        'Ripple Effect',
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+  );
+}
 ```
 
 ### ScaleEffect
@@ -94,28 +98,30 @@ The `ScaleEffect` provides a scaling effect on press. It can also be combined wi
 
 #### Example
 
-```
-Pressable(
-  effect: ScaleEffect.withRipple(
-    scaleFactor: 0.9,
-    rippleEffect: RippleEffect(color: Colors.green),
-  ),
-  child: Container(
-    padding: EdgeInsets.all(16.0),
-    color: Colors.orange,
-    child: Text(
-      'Scale with Ripple',
-      style: TextStyle(color: Colors.white),
+```dart
+Widget test() {
+  return Pressable(
+    effect: ScaleEffect.withRipple(
+      scaleFactor: 0.9,
+      rippleEffect: RippleEffect(color: Colors.green),
     ),
-  ),
-)
+    child: Container(
+      padding: EdgeInsets.all(16.0),
+      color: Colors.orange,
+      child: Text(
+        'Scale with Ripple',
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+  );
+}
 ```
 
 ## Complete Example
 
 Here’s a more comprehensive example demonstrating the use of both `RippleEffect` and `ScaleEffect`:
 
-```
+```dart
 import 'package:flutter/material.dart';
 import 'package:pressable/pressable.dart';
 

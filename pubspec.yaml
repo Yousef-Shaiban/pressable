@@ -1,6 +1,6 @@
-name: pressable
+name: pressable_flutter
 description: "Pressable package provides a customizable widget that adds various press effects to any child widget. It offers both ripple and scaling effects, giving you the ability to enhance the user interaction experience in your Flutter applications."
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/Yousef-Shaiban/pressable
 
 environment:
