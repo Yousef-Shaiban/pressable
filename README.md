@@ -38,7 +38,7 @@ import 'package:pressable_flutter/pressable_flutter.dart';
 
 Here's a simple example of using the `Pressable` widget with a shrink effect:
 
-(https://i.imgur.com/8ooc2rM.gif)
+<img src="https://i.imgur.com/8ooc2rM.gif">
 
 ```dart
 Pressable(
@@ -100,7 +100,7 @@ Pressable(
 
 #### Foreground Effect
 
-(https://i.imgur.com/MJXl5UH.gif)
+<img src="https://i.imgur.com/MJXl5UH.gif">
 
 ```dart
 Pressable(
@@ -120,7 +120,7 @@ Pressable(
 
 #### Foreground Saturated Effect
 
-(https://i.imgur.com/2knQw1a.gif)
+<img src="https://i.imgur.com/2knQw1a.gif">
 
 ```dart
 Pressable(
@@ -138,7 +138,7 @@ Pressable(
 
 #### Background Ripple
 
-(https://i.imgur.com/NX5U6fT.gif)
+<img src="https://i.imgur.com/NX5U6fT.gif">
 
 ```dart
 Pressable(
@@ -175,7 +175,7 @@ The `PressEffect` provides a shrink effect on press. It can also be combined wit
 
 #### Example
 
-(https://i.imgur.com/zawXONO.gif)
+<img src="https://i.imgur.com/zawXONO.gif">
 
 ```dart
 Pressable(
