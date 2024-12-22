@@ -1,8 +1,20 @@
-# Pressable Widget Package
+# Pressable
 
-## Overview
+A highly customizable Flutter widget that provides beautiful press animations and effects for any child widget. Perfect for creating interactive UI elements with minimal effort.
 
-The Pressable package provides a customizable widget that adds various press effects to any child widget. It offers both ripple and scaling effects, giving you the ability to enhance the user interaction experience in your Flutter applications.
+
+## Features
+
+- 🎯 Shrink animation on press
+- 💫 Material-style ripple effects
+- 🎨 Custom background/foreground color transitions
+- ⚡ Configurable animation durations
+- 🔒 Disabled state handling
+- 🎭 Multiple effect types (Shrink, Ripple, Combined)
+
+## Demo
+
+(https://i.imgur.com/8ooc2rM.gif)
 
 ## Installation
 
@@ -10,7 +22,7 @@ Add the following to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  pressable: ^0.0.1
+  pressable_flutter: <latest_version>
 ```
 
 Then, run `flutter pub get` to install the package.
@@ -20,149 +32,174 @@ Then, run `flutter pub get` to install the package.
 Import the package in your Dart file:
 
 ```dart
-import 'package:pressable/pressable_flutter.dart';
+import 'package:pressable_flutter/pressable_flutter.dart';
 ```
 
-### Basic Example
+### Example
 
-Here's a simple example of using the `Pressable` widget with a scaling effect:
+Here's a simple example of using the `Pressable` widget with a shrink effect:
+
+(https://i.imgur.com/8ooc2rM.gif)
 
 ```dart
-Widget test() {
-  return Pressable(
-    onPress: () {
-      print('Widget pressed!');
-    },
+Pressable(
+  effect: PressEffect(
+  shrinkFactor: 0.9,
+  rippleEffect: RippleEffect.background(
+      color: Colors.white,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+    ),
+  ),
+  duration: const Duration(milliseconds: 100),
+  onPress: () => log('onPress'),
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
     child: Container(
-      padding: EdgeInsets.all(16.0),
-      color: Colors.blue,
-      child: Text(
-        'Press me',
-        style: TextStyle(color: Colors.white),
+      height: 100,
+      width: 100,
+      decoration: BoxDecoration(
+        color: Colors.redAccent,
+        borderRadius: BorderRadius.circular(8),
       ),
     ),
-  );
-}
+  ),
+)
 ```
 
 ## Pressable Effects
 
 ### RippleEffect
 
-The `RippleEffect` provides a ripple effect on press. It has customizable properties such as color and mode.
+The `RippleEffect` provides a ripple effect on press. It has customizable properties such as color and borderRadius.
 
 #### Properties
 
-- **duration**: Duration of the ripple effect.
 - **color**: Color of the ripple effect.
-- **mode**: Mode of the ripple effect (background, content, contentSaturated).
-
-#### Example
-
-```dart
-Widget test() {
-  return Pressable(
-    effect: RippleEffect(
-      color: Colors.blueAccent,
-      mode: RippleEffectMode.background,
-    ),
-    child: Container(
-      padding: EdgeInsets.all(16.0),
-      color: Colors.red,
-      child: Text(
-        'Ripple Effect',
-        style: TextStyle(color: Colors.white),
-      ),
-    ),
-  );
-}
-```
-
-### ScaleEffect
-
-The `ScaleEffect` provides a scaling effect on press. It can also be combined with a ripple effect for a more dynamic interaction.
-
-#### Properties
-
-- **duration**: Duration of the scaling effect.
-- **scaleFactor**: The scale factor to reduce the size of the widget on press.
-- **rippleEffect**: Optional ripple effect to combine with the scaling effect.
+- **borderRadius**: Border radius for background ripple effect (only applicable for background type).
 
 #### Factory Constructors
 
-- **d50**: Scale effect with a duration of 50 milliseconds.
-- **d100**: Scale effect with a duration of 100 milliseconds.
-- **d150**: Scale effect with a duration of 150 milliseconds.
-- **withRipple**: Scale effect with a customizable ripple effect.
-- **withSaturatedRipple**: Scale effect with a saturated ripple effect.
+- **foreground**: Creates a foreground ripple effect with optional color.
+- **foregroundSaturated**: Creates a saturated foreground ripple effect.
+- **background**: Creates a background ripple effect with optional color and border radius.
 
 #### Example
 
 ```dart
-Widget test() {
-  return Pressable(
-    effect: ScaleEffect.withRipple(
-      scaleFactor: 0.9,
-      rippleEffect: RippleEffect(color: Colors.green),
-    ),
-    child: Container(
-      padding: EdgeInsets.all(16.0),
-      color: Colors.orange,
-      child: Text(
-        'Scale with Ripple',
-        style: TextStyle(color: Colors.white),
-      ),
-    ),
-  );
-}
+Pressable(
+  effect: RippleEffect.foreground(
+      color: Colors.amber,
+  ),
+  onPress: () => log('onPress'),
+  child: Container(
+    height: 100,
+    width: 100,
+    color: Colors.redAccent,
+  ),
+)
 ```
 
-## Complete Example
+#### Foreground Effect
 
-Here’s a more comprehensive example demonstrating the use of both `RippleEffect` and `ScaleEffect`:
+(https://i.imgur.com/MJXl5UH.gif)
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:pressable/pressable.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Pressable Example'),
-        ),
-        body: Center(
-          child: Pressable(
-            onPress: () {
-              print('Pressed!');
-            },
-            effect: ScaleEffect.withRipple(
-              scaleFactor: 0.95,
-              rippleEffect: RippleEffect(
-                color: Colors.blue.withOpacity(0.3),
-              ),
-            ),
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              color: Colors.blue,
-              child: Text(
-                'Press Me',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+Pressable(
+  effect: PressEffect(
+    rippleEffect: RippleEffect.foreground(
+      color: Colors.amber,
+    ),
+  ),
+  onPress: () => log('onPress'),
+  child: Container(
+    height: 100,
+    width: 100,
+    color: Colors.redAccent,
+  ),
+)
 ```
+
+#### Foreground Saturated Effect
+
+(https://i.imgur.com/2knQw1a.gif)
+
+```dart
+Pressable(
+  effect: PressEffect(
+    rippleEffect: RippleEffect.foregroundSaturated(),
+  ),
+  onPress: () => log('onPress'),
+  child: Container(
+    height: 100,
+    width: 100,
+    color: Colors.redAccent,
+  ),
+)
+```
+
+#### Background Ripple
+
+(https://i.imgur.com/NX5U6fT.gif)
+
+```dart
+Pressable(
+  effect: PressEffect(
+    rippleEffect: RippleEffect.background(
+      color: Colors.white,
+    ),
+  ),
+  onPress: () => log('onPress'),
+  child: Padding(
+  padding: const EdgeInsets.all(8.0),
+  child: Container(
+    height: 100,
+    width: 100,
+    color: Colors.redAccent,
+    ),
+  ),
+)
+```
+
+### PressEffect
+
+The `PressEffect` provides a shrink effect on press. It can also be combined with a ripple effect for a more dynamic interaction.
+
+#### Properties
+
+- **shrinkFactor**: The shrink factor to reduce the size of the widget on press (default: 0.95).
+- **rippleEffect**: Optional ripple effect to combine with the press effect.
+
+#### Factory Constructors
+
+- **withRipple**: Press effect with a customizable ripple effect.
+- **withSaturatedRipple**: Press effect with a saturated ripple effect.
+
+#### Example
+
+(https://i.imgur.com/zawXONO.gif)
+
+```dart
+Pressable(
+  effect: const PressEffect(
+    shrinkFactor: 0.9,
+  ),
+  child: Container(
+    height: 100,
+    width: 100,
+    color: Colors.redAccent,
+  ),
+)
+```
+
+## Additional Properties
+
+The `Pressable` widget now includes these additional properties:
+
+- **duration**: Custom duration for the press animation.
+- **enabled**: Whether the pressable effect is enabled (default: true).
+- **useDisabledColorEffect**: Whether to apply a grayscale effect when disabled (default: true).
+- **backgroundColor**: Background color of the pressable area.
+
 
 ## Contributions
 

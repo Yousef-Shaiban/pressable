@@ -1,86 +1,72 @@
 import 'package:flutter/material.dart';
 
-abstract class PressableEffect {
-  final Duration duration;
-  const PressableEffect({required this.duration});
+final class Mutable<T> {
+  T value;
+
+  Mutable(this.value);
 }
 
-enum RippleEffectMode { background, content, contentSaturated }
+abstract class PressableEffect {
+  const PressableEffect();
+}
 
 class RippleEffect extends PressableEffect {
-  static const _defaultEffectDuration = Duration(milliseconds: 120);
-  static const defaultRippleColor = Colors.white12;
+  static const defaultRippleColor = Colors.black26;
+
+  @immutable
   final Color? color;
-  final RippleEffectMode mode;
-  const RippleEffect({
-    super.duration = _defaultEffectDuration,
+  final String type;
+  final BorderRadius? borderRadius;
+
+  const RippleEffect._({
     this.color,
-    this.mode = RippleEffectMode.content,
+    required this.type,
+    this.borderRadius,
   });
+
+  factory RippleEffect.foreground({
+    Color? color,
+  }) =>
+      RippleEffect._(color: color, type: 'foreground');
+
+  factory RippleEffect.foregroundSaturated({
+    Duration? duration,
+  }) =>
+      const RippleEffect._(type: 'foreground-saturated');
+
+  factory RippleEffect.background({
+    Color? color,
+    BorderRadius? borderRadius,
+  }) =>
+      RippleEffect._(
+          color: color, type: 'background', borderRadius: borderRadius);
 }
 
-class ScaleEffect extends PressableEffect {
-  static const _defaultScaleFactor = 0.96;
-  static const _defaultEffectDuration = Duration(milliseconds: 70);
+class PressEffect extends PressableEffect {
+  static const _defaultshrinkFactor = 0.95;
 
-  final double scaleFactor;
+  final double shrinkFactor;
   final RippleEffect? rippleEffect;
-  const ScaleEffect({
-    super.duration = _defaultEffectDuration,
-    this.scaleFactor = _defaultScaleFactor,
+  const PressEffect({
+    this.shrinkFactor = _defaultshrinkFactor,
     this.rippleEffect,
-  }) : assert(scaleFactor <= 1.0);
+  }) : assert(shrinkFactor <= 1.0);
 
-  factory ScaleEffect.d50({
-    double scaleFactor = _defaultScaleFactor,
+  factory PressEffect.withRipple({
+    double shrinkFactor = _defaultshrinkFactor,
     RippleEffect? rippleEffect,
   }) =>
-      ScaleEffect(
-        duration: const Duration(milliseconds: 50),
-        scaleFactor: scaleFactor,
-        rippleEffect: rippleEffect,
+      PressEffect(
+        shrinkFactor: shrinkFactor,
+        rippleEffect: rippleEffect ?? RippleEffect.foreground(),
       );
 
-  factory ScaleEffect.d100({
-    double scaleFactor = _defaultScaleFactor,
-    RippleEffect? rippleEffect,
+  factory PressEffect.withSaturatedRipple({
+    double shrinkFactor = _defaultshrinkFactor,
   }) =>
-      ScaleEffect(
-        duration: const Duration(milliseconds: 100),
-        scaleFactor: scaleFactor,
-        rippleEffect: rippleEffect,
-      );
-
-  factory ScaleEffect.d150({
-    double scaleFactor = _defaultScaleFactor,
-    RippleEffect? rippleEffect,
-  }) =>
-      ScaleEffect(
-        duration: const Duration(milliseconds: 150),
-        scaleFactor: scaleFactor,
-        rippleEffect: rippleEffect,
-      );
-
-  factory ScaleEffect.withRipple({
-    Duration? duration,
-    double scaleFactor = _defaultScaleFactor,
-    RippleEffect? rippleEffect,
-  }) =>
-      ScaleEffect(
-        duration: duration ?? _defaultEffectDuration,
-        scaleFactor: scaleFactor,
-        rippleEffect: rippleEffect ?? const RippleEffect(),
-      );
-
-  factory ScaleEffect.withSaturatedRipple({
-    Duration? duration,
-    double scaleFactor = _defaultScaleFactor,
-  }) =>
-      ScaleEffect(
-        duration: duration ?? _defaultEffectDuration,
-        scaleFactor: scaleFactor,
-        rippleEffect:
-            const RippleEffect(mode: RippleEffectMode.contentSaturated),
+      PressEffect(
+        shrinkFactor: shrinkFactor,
+        rippleEffect: RippleEffect.foregroundSaturated(),
       );
 }
 
@@ -88,15 +74,23 @@ class Pressable extends StatefulWidget {
   const Pressable({
     super.key,
     required this.child,
-    this.effect = const ScaleEffect(),
+    this.effect = const PressEffect(),
     this.onPress,
     this.onLongPress,
+    this.enabled = true,
+    this.useDisabledColorEffect = true,
+    this.backgroundColor,
+    this.duration,
   });
 
   final Widget child;
+  final Duration? duration;
   final PressableEffect effect;
   final VoidCallback? onPress;
   final VoidCallback? onLongPress;
+  final bool enabled;
+  final bool useDisabledColorEffect;
+  final Color? backgroundColor;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -104,18 +98,21 @@ class Pressable extends StatefulWidget {
 
 class _PressableState extends State<Pressable> with TickerProviderStateMixin {
   late final AnimationController animationController;
-  late final Animation<double> animation;
+  late final Mutable<Animation<double>> animation;
 
   @override
   void initState() {
-    animationController =
-        AnimationController(vsync: this, duration: widget.effect.duration);
-    animation = Tween<double>(
+    animationController = AnimationController(
+        vsync: this,
+        duration: widget.effect is PressEffect
+            ? widget.duration ?? const Duration(milliseconds: 70)
+            : widget.duration ?? const Duration(milliseconds: 100));
+    animation = Mutable(Tween<double>(
             begin: 1.0,
-            end: widget.effect is ScaleEffect
-                ? (widget.effect as ScaleEffect).scaleFactor
+            end: widget.effect is PressEffect
+                ? (widget.effect as PressEffect).shrinkFactor
                 : 0)
-        .animate(animationController);
+        .animate(animationController));
     super.initState();
   }
 
@@ -123,6 +120,28 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
   void dispose() {
     animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(Pressable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.duration != widget.duration) {
+      animationController.duration =
+          widget.duration ?? const Duration(milliseconds: 70);
+    }
+
+    if ((widget.effect is PressEffect &&
+            oldWidget.effect is PressEffect &&
+            (oldWidget.effect as PressEffect).shrinkFactor !=
+                (widget.effect as PressEffect).shrinkFactor) ||
+        (widget.effect.runtimeType != widget.effect.runtimeType)) {
+      animation.value = Tween<double>(
+        begin: 1.0,
+        end: widget.effect is PressEffect
+            ? (widget.effect as PressEffect).shrinkFactor
+            : 0,
+      ).animate(animationController);
+    }
   }
 
   static List<double> getTintMatrix(double strength, Color color) {
@@ -151,88 +170,122 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
     ];
   }
 
+  Color? adjustColorStrength(Color? color, double strength) {
+    if (color == null) return null;
+
+    assert(strength >= 0 && strength <= 1, 'Strength must be between 0 and 1');
+    return color.withOpacity(color.opacity * strength);
+  }
+
+  Widget _buildRippleEffect(RippleEffect effect, Widget? child) {
+    if (effect.type == 'background') {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        decoration: BoxDecoration(
+          color: adjustColorStrength(
+            effect.color ?? Colors.grey.withOpacity(0.15),
+            animationController.value,
+          ),
+          borderRadius: effect.borderRadius,
+        ),
+        child: child,
+      );
+    }
+
+    return ColorFiltered(
+      colorFilter: ColorFilter.matrix(
+        effect.type == 'foreground'
+            ? getTintMatrix(
+                animationController.value,
+                effect.color ?? RippleEffect.defaultRippleColor,
+              )
+            : getSaturationMatrix(animationController.value),
+      ),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        if (widget.effect is ScaleEffect) {
-          final rippleEffect = (widget.effect as ScaleEffect).rippleEffect;
-          if (rippleEffect != null) {
-            if (rippleEffect.mode == RippleEffectMode.background) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                color: rippleEffect.color
-                        ?.withOpacity(animationController.value) ??
-                    Colors.white.withOpacity(animationController.value * 0.15),
-                child: Transform.scale(
-                  scale: animation.value,
-                  child: child,
-                ),
-              );
-            }
-            return ColorFiltered(
-              colorFilter: ColorFilter.matrix(
-                rippleEffect.mode == RippleEffectMode.content
-                    ? getTintMatrix(
-                        animationController.value,
-                        rippleEffect.color ?? Colors.white12,
-                      )
-                    : getSaturationMatrix(animationController.value),
+    return Material(
+      color: widget.backgroundColor ?? Colors.white.withOpacity(0),
+      child: widget.enabled
+          ? AnimatedBuilder(
+              animation: animation.value,
+              builder: (context, child) {
+                if (widget.effect is PressEffect) {
+                  final rippleEffect =
+                      (widget.effect as PressEffect).rippleEffect;
+                  if (rippleEffect != null) {
+                    if (rippleEffect.type == 'background') {
+                      return Transform.scale(
+                        scale: animation.value.value,
+                        child: _buildRippleEffect(rippleEffect, child),
+                      );
+                    }
+                    return ColorFiltered(
+                      colorFilter: ColorFilter.matrix(
+                        rippleEffect.type == 'foreground'
+                            ? getTintMatrix(
+                                animationController.value,
+                                rippleEffect.color ??
+                                    RippleEffect.defaultRippleColor,
+                              )
+                            : getSaturationMatrix(animationController.value),
+                      ),
+                      child: Transform.scale(
+                        scale: animation.value.value,
+                        child: child,
+                      ),
+                    );
+                  } else {
+                    return Transform.scale(
+                      scale: animation.value.value,
+                      child: child,
+                    );
+                  }
+                } else if (widget.effect is RippleEffect) {
+                  final rippleEffect = widget.effect as RippleEffect;
+                  if (rippleEffect.type == 'background') {
+                    return _buildRippleEffect(rippleEffect, child);
+                  }
+                  return ColorFiltered(
+                    colorFilter: ColorFilter.matrix(
+                      rippleEffect.type == 'foreground'
+                          ? getTintMatrix(
+                              animationController.value,
+                              rippleEffect.color ??
+                                  RippleEffect.defaultRippleColor,
+                            )
+                          : getSaturationMatrix(animationController.value),
+                    ),
+                    child: child,
+                  );
+                } else {
+                  return child ?? const SizedBox.shrink();
+                }
+              },
+              child: GestureDetector(
+                onTapCancel: () => animationController.animateTo(0),
+                onTapDown: (details) => animationController.animateTo(1.0),
+                onTapUp: (details) async {
+                  await Future.delayed(
+                      (widget.duration ?? const Duration(milliseconds: 70)));
+                  if (context.mounted) {
+                    animationController.animateTo(0);
+                  }
+                },
+                onTap: widget.onPress,
+                onLongPress: widget.onLongPress,
+                child: widget.child,
               ),
-              child: Transform.scale(
-                scale: animation.value,
-                child: child,
-              ),
-            );
-          } else {
-            return Transform.scale(
-              scale: animation.value,
-              child: child,
-            );
-          }
-        } else if (widget.effect is RippleEffect) {
-          final rippleEffect = widget.effect as RippleEffect;
-          if (rippleEffect.mode == RippleEffectMode.background) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              color: rippleEffect.color
-                      ?.withOpacity(animationController.value) ??
-                  Colors.white.withOpacity(animationController.value * 0.15),
-              child: child,
-            );
-          }
-          return ColorFiltered(
-            colorFilter: ColorFilter.matrix(
-              rippleEffect.mode == RippleEffectMode.content
-                  ? getTintMatrix(
-                      animationController.value,
-                      rippleEffect.color ?? Colors.white12,
-                    )
-                  : getSaturationMatrix(animationController.value),
-            ),
-            child: child,
-          );
-        } else {
-          return child ?? const SizedBox.shrink();
-        }
-      },
-      child: GestureDetector(
-        onTapCancel: () => animationController.animateTo(0),
-        onTapDown: (details) => animationController.animateTo(1.0),
-        onTapUp: (details) async {
-          await Future.delayed(
-            Duration(
-              milliseconds:
-                  (widget.effect.duration.inMilliseconds * 1.7).toInt(),
-            ),
-          );
-          animationController.animateTo(0);
-        },
-        onTap: widget.onPress,
-        onLongPress: widget.onLongPress,
-        child: widget.child,
-      ),
+            )
+          : widget.useDisabledColorEffect
+              ? ColorFiltered(
+                  colorFilter: ColorFilter.matrix(getSaturationMatrix(1)),
+                  child: widget.child,
+                )
+              : widget.child,
     );
   }
 }
