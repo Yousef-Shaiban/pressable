@@ -307,7 +307,7 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
                 onTapDown: (details) => animationController.animateTo(1.0),
                 onTapUp: (details) async {
                   await Future.delayed(
-                      (widget.duration ?? const Duration(milliseconds: 70)));
+                      (widget.duration ?? const Duration(milliseconds: 140)));
                   if (context.mounted) {
                     animationController.animateTo(0);
                   }

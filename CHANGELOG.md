@@ -36,3 +36,11 @@
 ## 1.0.2
 
 * Minor changes
+
+## 1.0.3
+
+* Minor changes
+
+## 1.0.4
+
+* Minor changes
