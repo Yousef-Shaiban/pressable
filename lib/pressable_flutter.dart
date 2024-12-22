@@ -1,39 +1,51 @@
 import 'package:flutter/material.dart';
 
-final class Mutable<T> {
+final class _Mutable<T> {
   T value;
 
-  Mutable(this.value);
+  _Mutable(this.value);
 }
 
+/// Base class for all pressable effects
 abstract class PressableEffect {
+  /// base constructor
   const PressableEffect();
 }
 
+/// Effect that shows a ripple animation when pressed
 class RippleEffect extends PressableEffect {
+  /// Default color for the ripple effect (black with 26% opacity)
   static const defaultRippleColor = Colors.black26;
 
-  @immutable
+  /// The color of the ripple effect
   final Color? color;
+
+  /// The type of ripple effect ('foreground', 'background', or 'foreground-saturated')
   final String type;
+
+  /// Optional border radius for background ripple effects
   final BorderRadius? borderRadius;
 
+  /// Creates a ripple effect with the specified parameters
   const RippleEffect._({
     this.color,
     required this.type,
     this.borderRadius,
   });
 
+  /// Creates a foreground ripple effect
   factory RippleEffect.foreground({
     Color? color,
   }) =>
       RippleEffect._(color: color, type: 'foreground');
 
+  /// Creates a saturated foreground ripple effect
   factory RippleEffect.foregroundSaturated({
     Duration? duration,
   }) =>
       const RippleEffect._(type: 'foreground-saturated');
 
+  /// Creates a background ripple effect
   factory RippleEffect.background({
     Color? color,
     BorderRadius? borderRadius,
@@ -42,16 +54,23 @@ class RippleEffect extends PressableEffect {
           color: color, type: 'background', borderRadius: borderRadius);
 }
 
+/// Effect that scales the widget when pressed
 class PressEffect extends PressableEffect {
   static const _defaultshrinkFactor = 0.95;
 
+  /// The scale factor when pressed (between 0 and 1)
   final double shrinkFactor;
+
+  /// Optional ripple effect to combine with the press effect
   final RippleEffect? rippleEffect;
+
+  /// Creates a press effect with the specified parameters
   const PressEffect({
     this.shrinkFactor = _defaultshrinkFactor,
     this.rippleEffect,
   }) : assert(shrinkFactor <= 1.0);
 
+  /// Creates a press effect with optional ripple
   factory PressEffect.withRipple({
     double shrinkFactor = _defaultshrinkFactor,
     RippleEffect? rippleEffect,
@@ -61,6 +80,7 @@ class PressEffect extends PressableEffect {
         rippleEffect: rippleEffect ?? RippleEffect.foreground(),
       );
 
+  /// Creates a press effect with a saturated ripple
   factory PressEffect.withSaturatedRipple({
     double shrinkFactor = _defaultshrinkFactor,
   }) =>
@@ -70,7 +90,9 @@ class PressEffect extends PressableEffect {
       );
 }
 
+/// A widget that responds to press interactions with customizable visual effects
 class Pressable extends StatefulWidget {
+  /// Creates a pressable widget with the specified parameters
   const Pressable({
     super.key,
     required this.child,
@@ -83,13 +105,28 @@ class Pressable extends StatefulWidget {
     this.duration,
   });
 
+  /// The widget below this widget in the tree
   final Widget child;
+
+  /// Duration of the press animation
   final Duration? duration;
+
+  /// The effect to apply when pressed
   final PressableEffect effect;
+
+  /// Called when the widget is tapped
   final VoidCallback? onPress;
+
+  /// Called when the widget is long-pressed
   final VoidCallback? onLongPress;
+
+  /// Whether the widget is interactive
   final bool enabled;
+
+  /// Whether to apply a desaturation effect when disabled
   final bool useDisabledColorEffect;
+
+  /// The background color of the widget
   final Color? backgroundColor;
 
   @override
@@ -98,7 +135,7 @@ class Pressable extends StatefulWidget {
 
 class _PressableState extends State<Pressable> with TickerProviderStateMixin {
   late final AnimationController animationController;
-  late final Mutable<Animation<double>> animation;
+  late final _Mutable<Animation<double>> animation;
 
   @override
   void initState() {
@@ -107,7 +144,7 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
         duration: widget.effect is PressEffect
             ? widget.duration ?? const Duration(milliseconds: 70)
             : widget.duration ?? const Duration(milliseconds: 100));
-    animation = Mutable(Tween<double>(
+    animation = _Mutable(Tween<double>(
             begin: 1.0,
             end: widget.effect is PressEffect
                 ? (widget.effect as PressEffect).shrinkFactor
@@ -145,12 +182,12 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
   }
 
   static List<double> getTintMatrix(double strength, Color color) {
-    double v = 1 - strength * color.alpha / 255;
+    double v = 1 - strength * color.a;
 
     return <double>[
-      v, 0, 0, 0, color.red * (1 - v), // r
-      0, v, 0, 0, color.green * (1 - v), // g
-      0, 0, v, 0, color.blue * (1 - v), // b
+      v, 0, 0, 0, color.r * 255 * (1 - v), // r
+      0, v, 0, 0, color.g * 255 * (1 - v), // g
+      0, 0, v, 0, color.b * 255 * (1 - v), // b
       0, 0, 0, 1, 0, // a
     ];
   }
@@ -174,7 +211,7 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
     if (color == null) return null;
 
     assert(strength >= 0 && strength <= 1, 'Strength must be between 0 and 1');
-    return color.withOpacity(color.opacity * strength);
+    return color.withAlpha((color.a * 255 * strength).round());
   }
 
   Widget _buildRippleEffect(RippleEffect effect, Widget? child) {
@@ -183,7 +220,7 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
         duration: const Duration(milliseconds: 120),
         decoration: BoxDecoration(
           color: adjustColorStrength(
-            effect.color ?? Colors.grey.withOpacity(0.15),
+            effect.color ?? Colors.grey.withAlpha(38),
             animationController.value,
           ),
           borderRadius: effect.borderRadius,
@@ -208,7 +245,7 @@ class _PressableState extends State<Pressable> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: widget.backgroundColor ?? Colors.white.withOpacity(0),
+      color: widget.backgroundColor ?? Colors.white.withAlpha(0),
       child: widget.enabled
           ? AnimatedBuilder(
               animation: animation.value,

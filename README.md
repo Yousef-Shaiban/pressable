@@ -179,9 +179,6 @@ The `PressEffect` provides a shrink effect on press. It can also be combined wit
 
 ```dart
 Pressable(
-  effect: const PressEffect(
-    shrinkFactor: 0.9,
-  ),
   child: Container(
     height: 100,
     width: 100,
