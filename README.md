@@ -13,8 +13,7 @@ A highly customizable Flutter widget that provides beautiful press animations an
 - 🎭 Multiple effect types (Shrink, Ripple, Combined)
 
 ## Demo
-
-(https://i.imgur.com/8ooc2rM.gif)
+<img src="https://i.imgur.com/8ooc2rM.gif">
 
 ## Installation
 
