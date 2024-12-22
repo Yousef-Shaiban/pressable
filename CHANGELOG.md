@@ -32,3 +32,7 @@
 ## 1.0.1
 
 * Some minor changes
+
+## 1.0.2
+
+* Minor changes
