@@ -28,3 +28,7 @@
 * ⚡ Performance optimizations:
   * Efficient animation controller management
 * ✅ Improved type safety with final class implementations
+
+## 1.0.1
+
+* Some minor changes
