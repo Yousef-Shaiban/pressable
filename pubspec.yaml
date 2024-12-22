@@ -1,5 +1,5 @@
 name: pressable_flutter
-description: "The Pressable package adds customizable press effects, like ripple and shrink, to any child widget, enhancing user interaction in Flutter apps."
+description: "Pressable package adds customizable press effects, like ripple and shrink, to any child widget, enhancing user interaction in Flutter apps."
 version: 1.0.3
 homepage: https://github.com/Yousef-Shaiban/pressable
 
