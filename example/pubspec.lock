@@ -143,10 +143,10 @@ packages:
     dependency: "direct main"
     description:
       name: pressable_flutter
-      sha256: "793ec24e052f0783bb161b835ad27b6c7d14c4a972fad2f15f7eeb71caba3082"
+      sha256: ed5692144d0221fec1942d70f01164f99f1a14d3cae0aca3a17cb0da134189d6
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.2"
   sky_engine:
     dependency: transitive
     description: flutter
